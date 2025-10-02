@@ -12,12 +12,12 @@
 
 #include "battery.h"
 
-//const std::string BATTERY_DESIGN_MAX = "/sys/class/power_supply/BAT0/charge_full_design";
-//const std::string BATTERY_MAX = "/sys/class/power_supply/BAT0/charge_full";
-//const std::string BATTERY_NOW = "/sys/class/power_supply/BAT0/charge_now";
-const std::string BATTERY_DESIGN_MAX = "/sys/class/power_supply/BAT0/energy_full_design";
-const std::string BATTERY_MAX = "/sys/class/power_supply/BAT0/energy_full";
-const std::string BATTERY_NOW = "/sys/class/power_supply/BAT0/energy_now";
+const std::string BATTERY_DESIGN_MAX = "/sys/class/power_supply/BAT0/charge_full_design";
+const std::string BATTERY_MAX = "/sys/class/power_supply/BAT0/charge_full";
+const std::string BATTERY_NOW = "/sys/class/power_supply/BAT0/charge_now";
+//const std::string BATTERY_DESIGN_MAX = "/sys/class/power_supply/BAT0/energy_full_design";
+//const std::string BATTERY_MAX = "/sys/class/power_supply/BAT0/energy_full";
+//const std::string BATTERY_NOW = "/sys/class/power_supply/BAT0/energy_now";
 constexpr float interval = 0.1f;
 std::vector<double> intervals = { (10./60.), (30./60.), 1, 5, 15, 60 };
 
@@ -131,7 +131,14 @@ int main(int argc, char **argv) {
 
     tp start = clk::now();
     int samples = 0;
-    
+   
+    const int bufsize=100;
+    char filename[bufsize];
+    snprintf(filename, bufsize, "/tmp/battery.%li.csv", time(nullptr));
+    FILE *log = fopen(filename, "w");
+    if (log)
+	fprintf(log, "time, battery\n");
+
     while(true) {
         // Clear terminal
         printf("\033c");
@@ -143,6 +150,10 @@ int main(int argc, char **argv) {
             if (tmp_bat != current_battery) {
                 current_battery = tmp_bat;
                 real_data = true;
+		if (log) {
+		    fprintf(log, "%li, %lf\n", time(nullptr), current_battery);
+		    fflush(log);
+		}
             }
         }
 

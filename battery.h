@@ -19,6 +19,8 @@ struct Battery {
         design_capacity = read_number(capacity_file);
     }
 
+    Battery() {}
+
     std::string current_charge_file;
 
     double capacity;
